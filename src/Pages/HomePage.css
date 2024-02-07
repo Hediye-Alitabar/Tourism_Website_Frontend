@@ -1,0 +1,15 @@
+.container{
+background-color: rgb(212, 210, 207);
+display: flex;
+flex-wrap: wrap;
+justify-content: center;
+}
+
+.place_box{
+    background-color: rgb(240, 244, 244);
+    width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    margin: 10px;
+}
