@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 export default function HomePage() {
     const [places, setPlaces] = useState([]);
 
-    const loadTweets = async () => {
+    const loadPlaces = async () => {
         const data = await fetch("http://localhost:3000/places").then((response) =>
             response.json()
         );
@@ -12,7 +12,7 @@ export default function HomePage() {
     };
 
     useEffect(() => {
-        loadTweets();
+        loadPlaces();
     }, []);
 
     return <div> 
