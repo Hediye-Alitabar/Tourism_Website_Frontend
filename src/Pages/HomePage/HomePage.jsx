@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { GET } from '../../utils/httpClient'
 import './HomePage.css';
+
 import { useEffect, useState } from "react";
 
 export default function HomePage() {
@@ -28,7 +29,7 @@ export default function HomePage() {
         </div>
         <Link to="/login">login</Link>
         <div className="container">
-            {places.map((t) => (
+            {places?.map((t) => (
                 <div key={t.id} className="place_box">
                     {t.name} {t.country} {t.description}
                 </div>

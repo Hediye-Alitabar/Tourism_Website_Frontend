@@ -1,29 +1,69 @@
-// import { Link } from "react-router-dom";
-// import { get } from '../../utils/httpClient'
+import * as React from 'react';
 import './Login.css';
-import { post } from '../../utils/httpClient'
-import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputLabel from '@mui/material/InputLabel';
+import InputAdornment from '@mui/material/InputAdornment';
+import FormControl from '@mui/material/FormControl';
+import TextField from '@mui/material/TextField';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Button from '@mui/material/Button';
 
-export default function LoginForm(){
-   const [username, setUsername] = useState("");
-   const [pasword, setPasword] = useState("");
+export default function InputAdornments() {
 
-   const handleSend = async () => {
-    const response = await post ('/login', {username, pasword});
-        console.log(response);
-   }
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/icon?family=Material+Icons"
+  />
 
-    return <div className="login">
-        <input type="text" placeholder="Username..." value={username} onChange={(e) => setUsername(e.target.value)}/>
-        <br />
-        <br />
-        <input type="text" placeholder="Password..." value={pasword} onChange={(e) => setPasword(e.target.value)}/>
-        <br />
-        <br />
-        <button onClick={handleSend}>Login</button>
-        <br />
-        <br />
-        <Link to="/">Back</Link>
+
+  const [showPassword, setShowPassword] = React.useState(false);
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
+
+  return (
+    // <div className='login'>
+      <Box sx={{ display: 'flex', flexDirection: 'column', textAlign: 'center', width: '30ch', backgroundColor: 'lightblue' }}>
+        <div>
+          <TextField
+            helperText=" "
+            id="demo-helper-text-aligned-no-helper"
+            label="Name"
+          />
+          <br />
+          <FormControl sx={{ m: 1 }} variant="outlined" >
+            <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
+            <OutlinedInput
+              id="outlined-adornment-password"
+              type={showPassword ? 'text' : 'password'}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              }
+              label="Password"
+            />
+
+          </FormControl>
+          <br /><br />
+          <Button variant="contained" disableElevation >
+            LOGIN
+          </Button>
         </div>
+      </Box>
+    // </div>
+  );
 }
