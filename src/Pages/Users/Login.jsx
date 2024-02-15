@@ -1,5 +1,6 @@
 import * as React from 'react';
 import './Login.css';
+import { Link } from "react-router-dom";
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import OutlinedInput from '@mui/material/OutlinedInput';
@@ -28,8 +29,8 @@ export default function InputAdornments() {
   };
 
   return (
-    // <div className='login'>
-      <Box sx={{ display: 'flex', flexDirection: 'column', textAlign: 'center', width: '30ch', backgroundColor: 'lightblue' }}>
+    <div className='login'>
+      <Box sx={{ display: 'flex', flexDirection: 'column', textAlign: 'center', width: '30ch' }}>
         <div>
           <TextField
             helperText=" "
@@ -64,6 +65,6 @@ export default function InputAdornments() {
           </Button>
         </div>
       </Box>
-    // </div>
+     </div>
   );
 }

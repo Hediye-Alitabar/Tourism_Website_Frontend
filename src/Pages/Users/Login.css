@@ -1,3 +1,9 @@
 .login{
-    background-color: aqua;
+    /* background-color: aqua; */
+    text-align: center;
+}
+
+.header{
+    display: flex;
+    flex-direction: row;
 }
