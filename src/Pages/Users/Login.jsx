@@ -53,7 +53,7 @@ export default function InputAdornments() {
             <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
             <OutlinedInput
               id="outlined-adornment-password"
-              type={showPassword ? 'text' : 'password' }
+              type={showPassword ? 'text' : 'password'}
               onChange={(e) => setPasword(e.target.value)}
               endAdornment={
                 <InputAdornment position="end">

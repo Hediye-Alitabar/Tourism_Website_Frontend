@@ -183,7 +183,8 @@ export default function HomePage() {
                                         <Typography id="transition-modal-title" variant="body1" component="p">
                                             {selectedPlaceDescription}
                                         </Typography>
-                                        <Button>Rate</Button>
+                                        <Button>Edit</Button>
+                                       
                                     </Box>
                                 </Fade>
 
