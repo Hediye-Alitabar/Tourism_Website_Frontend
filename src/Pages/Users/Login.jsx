@@ -1,6 +1,8 @@
 import * as React from 'react';
 import './Login.css';
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { post } from '../../utils/httpClient'
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import OutlinedInput from '@mui/material/OutlinedInput';
@@ -21,6 +23,14 @@ export default function InputAdornments() {
 
 
   const [showPassword, setShowPassword] = React.useState(false);
+  const [username, setUsername] = useState("");
+  const [pasword, setPasword] = useState("");
+
+  const handleSned = async () => {
+    const response = await post("/login", { username, pasword });
+    console.log(response);
+  };
+
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -36,13 +46,15 @@ export default function InputAdornments() {
             helperText=" "
             id="demo-helper-text-aligned-no-helper"
             label="Name"
+            onChange={(e) => setUsername(e.target.value)}
           />
           <br />
           <FormControl sx={{ m: 1 }} variant="outlined" >
             <InputLabel htmlFor="outlined-adornment-password">Password</InputLabel>
             <OutlinedInput
               id="outlined-adornment-password"
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? 'text' : 'password' }
+              onChange={(e) => setPasword(e.target.value)}
               endAdornment={
                 <InputAdornment position="end">
                   <IconButton
@@ -60,11 +72,12 @@ export default function InputAdornments() {
 
           </FormControl>
           <br /><br />
-          <Button variant="contained" disableElevation >
+          <Button variant="contained" disableElevation onClick={handleSned}>
             LOGIN
           </Button>
         </div>
+        <Link to='/'>Back</Link>
       </Box>
-     </div>
+    </div>
   );
 }

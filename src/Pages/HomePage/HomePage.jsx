@@ -28,6 +28,11 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import { CardActionArea } from '@mui/material';
+import Modal from '@mui/material/Modal';
+import Rating from '@mui/material/Rating';
+import StarIcon from '@mui/icons-material/Star';
+import Backdrop from '@mui/material/Backdrop';
+import Fade from '@mui/material/Fade';
 
 
 const Search = styled('div')(({ theme }) => ({
@@ -69,8 +74,33 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
 }));
 
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+};
 
-export default function PrimarySearchAppBar() {
+export default function HomePage() {
+    // const [value, setValue] = React.useState(2);
+    const [open, setOpen] = React.useState(false);
+    const handleClose = () => setOpen(false);
+
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filteredPlaces, setFilteredPlaces] = useState([]);
+
+    const [selectedPlaceDescription, setSelectedPlaceDescription] = React.useState('');
+
+    const handleOpen = (description) => {
+        setSelectedPlaceDescription(description);
+        setOpen(true);
+    };
+
     const [places, setPlaces] = useState([]);
 
     const loadPlaces = async () => {
@@ -78,7 +108,22 @@ export default function PrimarySearchAppBar() {
         //     response.json()
         // );
         const data = await GET('/places');
+
+        // data = await GET(`/places?name=${name}&country=${country}`);
         setPlaces(data);
+        setFilteredPlaces(data);
+    };
+
+    const handleSearch = () => {
+        if (searchQuery === '') {
+            setFilteredPlaces(places);
+        } else {
+            const filtered = places.filter(place => {
+                return place.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    place.country.toLowerCase().includes(searchQuery.toLowerCase());
+            });
+            setFilteredPlaces(filtered);
+        }
     };
 
     useEffect(() => {
@@ -97,14 +142,14 @@ export default function PrimarySearchAppBar() {
                             </IconButton>
                         </Link>
                         </div>
-                        {/* <Typography variant="h6" noWrap component="div" sx={{ display: { xs: 'none', sm: 'block' } }}>
-                               Tourism 
-                    </Typography> */}
                         <Search>
-                            <SearchIconWrapper>
-                                <SearchIcon />
-                            </SearchIconWrapper>
-                            <StyledInputBase placeholder="Search…" inputProps={{ 'aria-label': 'search', style: { width: '500px' } }} />
+                            <Button onClick={handleSearch}>
+                                <SearchIconWrapper>
+                                    <SearchIcon />
+                                </SearchIconWrapper>
+                            </Button>
+
+                            <StyledInputBase placeholder="Search…" inputProps={{ 'aria-label': 'search', style: { width: '500px' } }} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                         </Search>
                     </Toolbar>
                 </AppBar>
@@ -112,7 +157,7 @@ export default function PrimarySearchAppBar() {
 
             <Card sx={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
 
-                {places?.map((t) => (
+                {filteredPlaces?.map((t) => (
                     <CardActionArea key={t.id} sx={{ display: 'flex', flexDirection: 'column', width: '20%', height: '20%', margin: '10px', padding: '10px' }} >
                         <CardMedia component="img" height="140" image="https://i.pinimg.com/736x/77/27/ec/7727ecc5b20887f5de0b08c54b7f2924.jpg" alt="lizard" />
                         <CardContent>
@@ -122,6 +167,27 @@ export default function PrimarySearchAppBar() {
                             <Typography variant="body2" color="text.secondary">
                                 {t.country}
                             </Typography>
+                            <Button onClick={() => handleOpen(t.description)}>Open modal</Button>
+                            <Modal
+                                aria-labelledby="transition-modal-title"
+                                aria-describedby="transition-modal-description"
+                                open={open}
+                                onClose={handleClose}
+                                closeAfterTransition
+                                slots={{ backdrop: Backdrop }}
+                                slotProps={{
+                                    backdrop: { timeout: 500, },
+                                }}>
+                                <Fade in={open}>
+                                    <Box sx={style}>
+                                        <Typography id="transition-modal-title" variant="body1" component="p">
+                                            {selectedPlaceDescription}
+                                        </Typography>
+                                        <Button>Rate</Button>
+                                    </Box>
+                                </Fade>
+
+                            </Modal>
                         </CardContent>
                     </CardActionArea>
                 ))}
