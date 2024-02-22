@@ -127,41 +127,41 @@ export default function HomePage() {
 
     const handleHardshipChange = (event) => {
         setHardship(event.target.value);
-      };
+    };
 
-      const [selectedPlaceId, setSelectedPlaceId] = React.useState([]);
+    const [selectedPlaceId, setSelectedPlaceId] = React.useState([]);
 
-      const handleEdit = async () => {
+    const handleEdit = async () => {
         try {
-          if (!selectedPlaceId) {
-            console.error("Selected Place ID is undefined");
-            return;
-          }
-      
-          const response = await fetch(`http://localhost:3000/places/${selectedPlaceId}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              hardship: hardship
-            })
-          });
-      
-          if (response.ok) {
-            const data = await response.json();
-            console.log(data.message); 
-            handleCloseDialog();
-            handleClose();
-            loadPlaces(); 
-          } else {
-            throw new Error('Failed to update place');
-          }
+            if (!selectedPlaceId) {
+                console.error("Selected Place ID is undefined");
+                return;
+            }
+
+            const response = await fetch(`http://localhost:3000/places/${selectedPlaceId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    hardship: hardship
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data.message);
+                handleCloseDialog();
+                handleClose();
+                loadPlaces();
+            } else {
+                throw new Error('Failed to update place');
+            }
         } catch (error) {
-          console.error("Error editing place:", error);
+            console.error("Error editing place:", error);
         }
-      };
-    
+    };
+
 
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredPlaces, setFilteredPlaces] = useState([]);
@@ -218,7 +218,8 @@ export default function HomePage() {
         name: '',
         description: '',
         country: '',
-        hardship: ''
+        hardship: '',
+        image: ''
     });
 
     const handleAddPlace = async () => {
@@ -229,7 +230,8 @@ export default function HomePage() {
                 name: '',
                 description: '',
                 country: '',
-                hardship: ''
+                hardship: '',
+                image: ''
             });
             handleCloseAddDialog();
         } catch (error) {
@@ -244,42 +246,42 @@ export default function HomePage() {
 
     const handleDelete = async () => {
         try {
-          if (!selectedPlaceId) {
-            console.error("Selected Place ID is undefined");
-            return;
-          }
-      
-          const response = await fetch(`http://localhost:3000/places/${selectedPlaceId}`, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json'
+            if (!selectedPlaceId) {
+                console.error("Selected Place ID is undefined");
+                return;
             }
-          });
-      
-          if (response.ok) {
-            const data = await response.json();
-            console.log(data.message); 
-            handleClose();
-            loadPlaces(); 
-          } else {
-            throw new Error('Failed to delete place');
-          }
+
+            const response = await fetch(`http://localhost:3000/places/${selectedPlaceId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data.message);
+                handleClose();
+                loadPlaces();
+            } else {
+                throw new Error('Failed to delete place');
+            }
         } catch (error) {
-          console.error("Error deleting place:", error);
+            console.error("Error deleting place:", error);
         }
-      };
-    
-      const handleSortByhardship= () => {
+    };
+
+    const handleSortByhardship = () => {
         let sortedPlaces = [...places];
         sortedPlaces.sort((a, b) => a.hardship - b.hardship);
         setFilteredPlaces(sortedPlaces);
-      };
+    };
 
     return (
         <div>
             <Box sx={{ flexGrow: 1 }}>
                 <AppBar position="dynamic" >
-                    <Toolbar sx={{display:'flex', justifyContent:'space-between'}}>
+                    <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
                         <div><Link to='/users'>
                             <IconButton sx={{ display: { width: '80px' } }} size="large" edge="end" aria-label="account of current user" aria-haspopup="true" color="inherit">
                                 <AccountCircle />
@@ -297,17 +299,17 @@ export default function HomePage() {
                         </Search>
                         <Tooltip title="decreasing hardship"><IconButton onClick={handleSortByhardship}><ArrowDownwardIcon /></IconButton></Tooltip>
                         <Button onClick={logout} variant="contained">Log out</Button>
-                    
+
                     </Toolbar>
                 </AppBar>
             </Box>
 
-            <Card sx={{ display: 'flex', flexWrap:'wrap', gap:'10px'}}>
+            <Card sx={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
 
                 {filteredPlaces?.map((t) => (
                     // { flex:' 1 0 calc(25% - 20px)', margin: '10px'}
                     <CardActionArea key={t.id} sx={{ display: 'flex', flexDirection: 'column', width: '20%', height: '20%', margin: '10px', padding: '10px' }} >
-                        {/* <CardMedia component="img" height="140" image="https://i.pinimg.com/736x/77/27/ec/7727ecc5b20887f5de0b08c54b7f2924.jpg" alt="lizard" /> */}
+                        <CardMedia component="img" height="140" image={t.place_image} alt="img" />
                         <CardContent>
                             <Typography variant="h6" color="text.secondary">
                                 {t.name}
@@ -335,9 +337,9 @@ export default function HomePage() {
 
                                         </Typography>
 
-                                        <Button variant="outlined" onClick={handleClose}><ArrowBackIcon/></Button>
+                                        <Button variant="outlined" onClick={handleClose}><ArrowBackIcon /></Button>
                                         {isadmin && <Button variant="outlined" onClick={handleOpenDialog}>Edit</Button>}
-                                        {isadmin && <Button variant="outlined" onClick={handleDelete}><CloseIcon/></Button>}
+                                        {isadmin && <Button variant="outlined" onClick={handleDelete}><CloseIcon /></Button>}
                                         <Dialog
                                             open={openDialog}
                                             onClose={handleCloseDialog}
@@ -368,10 +370,10 @@ export default function HomePage() {
                                             <DialogActions>
                                                 <Button onClick={handleCloseDialog}>Cancel</Button>
                                                 <Button onClick={handleEdit}>UPDATE</Button>
-                                                
+
                                             </DialogActions>
                                         </Dialog>
-                                     
+
                                     </Box>
                                 </Fade>
 
@@ -414,15 +416,17 @@ export default function HomePage() {
                     <TextField name="hardship"
                         value={newPlaceData.hardship}
                         onChange={handleInputChange} />
-                    {/* <InputLabel size="normal" focused>Image URL:</InputLabel>
-                    <TextField/> */}
+                    <InputLabel size="normal" focused>Image URL:</InputLabel>
+                    <TextField name="image"
+                        value={newPlaceData.image}
+                        onChange={handleInputChange} />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseAddDialog}>Cancel</Button>
                     <Button onClick={handleAddPlace}>Add</Button>
                 </DialogActions>
             </Dialog>
-          
+
         </div>
     );
 }
