@@ -1,5 +1,8 @@
 import { Link } from "react-router-dom";
-import { GET } from '../../utils/httpClient'
+import { GET } from '../../utils/httpClient';
+import { post } from '../../utils/httpClient';
+import { patch } from '../../utils/httpClient';
+import { DELETE } from '../../utils/httpClient';
 import './HomePage.css';
 
 import { useEffect, useState } from "react";
@@ -33,7 +36,18 @@ import Rating from '@mui/material/Rating';
 import StarIcon from '@mui/icons-material/Star';
 import Backdrop from '@mui/material/Backdrop';
 import Fade from '@mui/material/Fade';
-
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import TextField from '@mui/material/TextField';
+import InputLabel from '@mui/material/InputLabel';
+import AddIcon from '@mui/icons-material/Add';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import Tooltip from '@mui/material/Tooltip';
+import CloseIcon from '@mui/icons-material/Close';
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -87,17 +101,85 @@ const style = {
 };
 
 export default function HomePage() {
-    // const [value, setValue] = React.useState(2);
     const [open, setOpen] = React.useState(false);
     const handleClose = () => setOpen(false);
 
+    const [openDialog, setOpenDialog] = React.useState(false);
+    const [openAddDialog, setOpenAddDialog] = React.useState(false);
+
+    const handleOpenDialog = () => {
+        setOpenDialog(true);
+    };
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+    };
+
+    const handleOpenaddDialog = () => {
+        setOpenAddDialog(true);
+    };
+
+    const handleCloseAddDialog = () => {
+        setOpenAddDialog(false);
+    };
+
+    const [hardship, setHardship] = React.useState('');
+
+    const handleHardshipChange = (event) => {
+        setHardship(event.target.value);
+      };
+
+      const [selectedPlaceId, setSelectedPlaceId] = React.useState([]);
+
+      const handleEdit = async () => {
+        try {
+          if (!selectedPlaceId) {
+            console.error("Selected Place ID is undefined");
+            return;
+          }
+      
+          const response = await fetch(`http://localhost:3000/places/${selectedPlaceId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              hardship: hardship
+            })
+          });
+      
+          if (response.ok) {
+            const data = await response.json();
+            console.log(data.message); 
+            handleCloseDialog();
+            handleClose();
+            loadPlaces(); 
+          } else {
+            throw new Error('Failed to update place');
+          }
+        } catch (error) {
+          console.error("Error editing place:", error);
+        }
+      };
+    
+
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredPlaces, setFilteredPlaces] = useState([]);
+    const [isadmin, setIsAdmin] = useState(false);
+
+
+    useEffect(() => {
+        const userAuth = JSON.parse(localStorage.getItem('userAuth'));
+        setIsAdmin(userAuth.isadmin);
+    }, []);
 
     const [selectedPlaceDescription, setSelectedPlaceDescription] = React.useState('');
-
-    const handleOpen = (description) => {
+    const [selectedPlaceHardship, setSelectedPlaceHardship] = React.useState('');
+    const handleOpen = (placeId, description, hardship) => {
+        setSelectedPlaceId(placeId);
+        console.log(placeId);
         setSelectedPlaceDescription(description);
+        setSelectedPlaceHardship(hardship);
         setOpen(true);
     };
 
@@ -108,11 +190,13 @@ export default function HomePage() {
         //     response.json()
         // );
         const data = await GET('/places');
-
-        // data = await GET(`/places?name=${name}&country=${country}`);
         setPlaces(data);
         setFilteredPlaces(data);
     };
+
+    const logout = () => {
+        localStorage.setItem("userAuth", null);
+    }
 
     const handleSearch = () => {
         if (searchQuery === '') {
@@ -130,12 +214,73 @@ export default function HomePage() {
         loadPlaces();
     }, []);
 
+    const [newPlaceData, setNewPlaceData] = useState({
+        name: '',
+        description: '',
+        country: '',
+        hardship: ''
+    });
+
+    const handleAddPlace = async () => {
+        try {
+            await post('/places', newPlaceData);
+            loadPlaces();
+            setNewPlaceData({
+                name: '',
+                description: '',
+                country: '',
+                hardship: ''
+            });
+            handleCloseAddDialog();
+        } catch (error) {
+            console.error('Error adding place:', error);
+        }
+    };
+
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+        setNewPlaceData({ ...newPlaceData, [name]: value });
+    };
+
+    const handleDelete = async () => {
+        try {
+          if (!selectedPlaceId) {
+            console.error("Selected Place ID is undefined");
+            return;
+          }
+      
+          const response = await fetch(`http://localhost:3000/places/${selectedPlaceId}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+      
+          if (response.ok) {
+            const data = await response.json();
+            console.log(data.message); 
+            handleClose();
+            loadPlaces(); 
+          } else {
+            throw new Error('Failed to delete place');
+          }
+        } catch (error) {
+          console.error("Error deleting place:", error);
+        }
+      };
+    
+      const handleSortByhardship= () => {
+        let sortedPlaces = [...places];
+        sortedPlaces.sort((a, b) => a.hardship - b.hardship);
+        setFilteredPlaces(sortedPlaces);
+      };
+
     return (
         <div>
             <Box sx={{ flexGrow: 1 }}>
-                <AppBar position="static">
-                    <Toolbar>
-                        <div><Link to='/login'>
+                <AppBar position="dynamic" >
+                    <Toolbar sx={{display:'flex', justifyContent:'space-between'}}>
+                        <div><Link to='/users'>
                             <IconButton sx={{ display: { width: '80px' } }} size="large" edge="end" aria-label="account of current user" aria-haspopup="true" color="inherit">
                                 <AccountCircle />
                                 <span>Login</span>
@@ -148,26 +293,29 @@ export default function HomePage() {
                                     <SearchIcon />
                                 </SearchIconWrapper>
                             </Button>
-
                             <StyledInputBase placeholder="Search…" inputProps={{ 'aria-label': 'search', style: { width: '500px' } }} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                         </Search>
+                        <Tooltip title="decreasing hardship"><IconButton onClick={handleSortByhardship}><ArrowDownwardIcon /></IconButton></Tooltip>
+                        <Button onClick={logout} variant="contained">Log out</Button>
+                    
                     </Toolbar>
                 </AppBar>
             </Box>
 
-            <Card sx={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+            <Card sx={{ display: 'flex', flexWrap:'wrap', gap:'10px'}}>
 
                 {filteredPlaces?.map((t) => (
+                    // { flex:' 1 0 calc(25% - 20px)', margin: '10px'}
                     <CardActionArea key={t.id} sx={{ display: 'flex', flexDirection: 'column', width: '20%', height: '20%', margin: '10px', padding: '10px' }} >
-                        <CardMedia component="img" height="140" image="https://i.pinimg.com/736x/77/27/ec/7727ecc5b20887f5de0b08c54b7f2924.jpg" alt="lizard" />
+                        {/* <CardMedia component="img" height="140" image="https://i.pinimg.com/736x/77/27/ec/7727ecc5b20887f5de0b08c54b7f2924.jpg" alt="lizard" /> */}
                         <CardContent>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography variant="h6" color="text.secondary">
                                 {t.name}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
                                 {t.country}
                             </Typography>
-                            <Button onClick={() => handleOpen(t.description)}>Open modal</Button>
+                            <Button onClick={() => handleOpen(t.id, t.description, t.hardship)}>Detail</Button>
                             <Modal
                                 aria-labelledby="transition-modal-title"
                                 aria-describedby="transition-modal-description"
@@ -181,10 +329,49 @@ export default function HomePage() {
                                 <Fade in={open}>
                                     <Box sx={style}>
                                         <Typography id="transition-modal-title" variant="body1" component="p">
-                                            {selectedPlaceDescription}
+                                            {selectedPlaceId}
+                                            <p>Description: {selectedPlaceDescription}</p>
+                                            <p>Hardship Level: {selectedPlaceHardship} </p>
+
                                         </Typography>
-                                        <Button>Edit</Button>
-                                       
+
+                                        <Button variant="outlined" onClick={handleClose}><ArrowBackIcon/></Button>
+                                        {isadmin && <Button variant="outlined" onClick={handleOpenDialog}>Edit</Button>}
+                                        {isadmin && <Button variant="outlined" onClick={handleDelete}><CloseIcon/></Button>}
+                                        <Dialog
+                                            open={openDialog}
+                                            onClose={handleCloseDialog}
+                                            PaperProps={{
+                                                component: 'form',
+                                                onSubmit: (event) => {
+                                                    event.preventDefault();
+                                                    const formData = new FormData(event.currentTarget);
+                                                    const formJson = Object.fromEntries(formData.entries());
+                                                    const email = formJson.email;
+                                                    console.log(email);
+                                                    handleCloseDialog();
+                                                },
+                                            }}>
+                                            <DialogTitle>Edit Data</DialogTitle>
+                                            <DialogContent>
+                                                {/* <InputLabel size="normal" focused>Description:</InputLabel>
+                                                <TextField
+
+                                                /> */}
+
+                                                <InputLabel size="normal" focused>Hardship:</InputLabel>
+                                                <TextField
+                                                    value={hardship}
+                                                    onChange={handleHardshipChange}
+                                                />
+                                            </DialogContent>
+                                            <DialogActions>
+                                                <Button onClick={handleCloseDialog}>Cancel</Button>
+                                                <Button onClick={handleEdit}>UPDATE</Button>
+                                                
+                                            </DialogActions>
+                                        </Dialog>
+                                     
                                     </Box>
                                 </Fade>
 
@@ -193,6 +380,49 @@ export default function HomePage() {
                     </CardActionArea>
                 ))}
             </Card>
+
+            {isadmin && (<Tooltip title="Add Place"><Button onClick={handleOpenaddDialog}><AddIcon /></Button>  </Tooltip>)}
+            <Dialog
+                open={openAddDialog}
+                onClose={handleCloseAddDialog}
+                PaperProps={{
+                    component: 'form',
+                    onSubmit: (event) => {
+                        event.preventDefault();
+                        const formData = new FormData(event.currentTarget);
+                        const formJson = Object.fromEntries(formData.entries());
+                        const email = formJson.email;
+                        console.log(email);
+                        handleCloseDialog();
+                    },
+                }}>
+                <DialogTitle>Add Place</DialogTitle>
+                <DialogContent>
+                    <InputLabel size="normal" focused>Name:</InputLabel>
+                    <TextField name="name"
+                        value={newPlaceData.name}
+                        onChange={handleInputChange} />
+                    <InputLabel size="normal" focused>Description:</InputLabel>
+                    <TextField name="description"
+                        value={newPlaceData.description}
+                        onChange={handleInputChange} />
+                    <InputLabel size="normal" focused>Country:</InputLabel>
+                    <TextField name="country"
+                        value={newPlaceData.country}
+                        onChange={handleInputChange} />
+                    <InputLabel size="normal" focused>Hardship Level:</InputLabel>
+                    <TextField name="hardship"
+                        value={newPlaceData.hardship}
+                        onChange={handleInputChange} />
+                    {/* <InputLabel size="normal" focused>Image URL:</InputLabel>
+                    <TextField/> */}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseAddDialog}>Cancel</Button>
+                    <Button onClick={handleAddPlace}>Add</Button>
+                </DialogActions>
+            </Dialog>
+          
         </div>
     );
 }

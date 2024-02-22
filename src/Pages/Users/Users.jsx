@@ -13,6 +13,7 @@ import TextField from '@mui/material/TextField';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Button from '@mui/material/Button';
+import { useNavigate } from 'react-router-dom';
 
 export default function InputAdornments() {
 
@@ -26,11 +27,27 @@ export default function InputAdornments() {
   const [username, setUsername] = useState("");
   const [pasword, setPasword] = useState("");
 
-  const handleSned = async () => {
-    const response = await post("/login", { username, pasword });
-    console.log(response);
-  };
+  const navigate = useNavigate();
 
+
+  useEffect(() => {
+    const userAuth = JSON.parse(localStorage.getItem('userAuth'));
+    if (userAuth && userAuth.id) {
+      navigate("/");
+    }
+    // console.log(userAuth);
+  }, []);
+
+
+  const handleSend = async () => {
+    const response = await post("/users", { username, pasword }); 
+    if (response.error) {
+      console.log('Wrong pass');
+    } else {
+      localStorage.setItem('userAuth', JSON.stringify(response.user));
+      navigate("/");
+    }
+  };
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -40,6 +57,7 @@ export default function InputAdornments() {
 
   return (
     <div className='login'>
+      <h2>LOGIN</h2>
       <Box sx={{ display: 'flex', flexDirection: 'column', textAlign: 'center', width: '30ch' }}>
         <div>
           <TextField
@@ -72,7 +90,7 @@ export default function InputAdornments() {
 
           </FormControl>
           <br /><br />
-          <Button variant="contained" disableElevation onClick={handleSned}>
+          <Button variant="contained" disableElevation onClick={handleSend}>
             LOGIN
           </Button>
         </div>
