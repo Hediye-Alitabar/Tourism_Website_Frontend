@@ -109,6 +109,20 @@ export default function HomePage() {
     const [openDialog, setOpenDialog] = React.useState(false);
     const [openAddDialog, setOpenAddDialog] = React.useState(false);
 
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filteredPlaces, setFilteredPlaces] = useState([]);
+    const [isadmin, setIsAdmin] = useState(false);
+
+    const [selectedPlaceDescription, setSelectedPlaceDescription] = React.useState('');
+    const [selectedPlaceHardship, setSelectedPlaceHardship] = React.useState('');
+    const [selectedPlaceId, setSelectedPlaceId] = React.useState([]);
+
+
+    const [places, setPlaces] = useState([]);
+
+    const [hardship, setHardship] = React.useState('');
+
+
     const handleOpenDialog = () => {
         setOpenDialog(true);
     };
@@ -125,13 +139,9 @@ export default function HomePage() {
         setOpenAddDialog(false);
     };
 
-    const [hardship, setHardship] = React.useState('');
-
     const handleHardshipChange = (event) => {
         setHardship(event.target.value);
     };
-
-    const [selectedPlaceId, setSelectedPlaceId] = React.useState([]);
 
     const handleEdit = async () => {
         try {
@@ -164,13 +174,6 @@ export default function HomePage() {
         }
     };
 
-
-    const [searchQuery, setSearchQuery] = useState('');
-    const [filteredPlaces, setFilteredPlaces] = useState([]);
-    const [isadmin, setIsAdmin] = useState(false);
-
-    const [selectedPlaceDescription, setSelectedPlaceDescription] = React.useState('');
-    const [selectedPlaceHardship, setSelectedPlaceHardship] = React.useState('');
     const handleOpen = (placeId, description, hardship) => {
         setSelectedPlaceId(placeId);
         setSelectedPlaceDescription(description);
@@ -178,7 +181,6 @@ export default function HomePage() {
         setOpen(true);
     };
 
-    const [places, setPlaces] = useState([]);
 
     const loadPlaces = async () => {
         // const data = await fetch("http://localhost:3000/places").then((response) =>
@@ -188,6 +190,12 @@ export default function HomePage() {
         setPlaces(data);
         setFilteredPlaces(data);
     };
+
+    useEffect(() => {
+        loadPlaces();
+        const userAuth = JSON.parse(localStorage.getItem('userAuth'));
+        setIsAdmin(userAuth?.isadmin || false); 
+    }, []);
 
     const logout = () => {
         localStorage.setItem("userAuth", null);
@@ -204,12 +212,6 @@ export default function HomePage() {
             setFilteredPlaces(filtered);
         }
     };
-
-    useEffect(() => {
-        loadPlaces();
-        const userAuth = JSON.parse(localStorage.getItem('userAuth'));
-        setIsAdmin(userAuth?.isadmin || false); 
-    }, []);
 
     const [newPlaceData, setNewPlaceData] = useState({
         name: '',
@@ -314,8 +316,7 @@ export default function HomePage() {
                                 <Typography variant="body2" color="text.secondary">
                                     {t.country}
                                 </Typography>
-                                {/* <Button onClick={() => handleOpen(t.id, t.description, t.hardship)}>Detail</Button> */}
-                                <div onClick={() => handleOpen(t.id, t.description, t.hardship)}>Detail</div>
+                                <div style={{color:'blue'}} onClick={() => handleOpen(t.id, t.description, t.hardship)}>More Detail</div>
 
                                 <Modal
                                     aria-labelledby="transition-modal-title"
