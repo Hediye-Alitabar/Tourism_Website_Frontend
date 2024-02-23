@@ -48,6 +48,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Tooltip from '@mui/material/Tooltip';
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -168,10 +170,10 @@ export default function HomePage() {
     const [isadmin, setIsAdmin] = useState(false);
 
 
-    useEffect(() => {
-        const userAuth = JSON.parse(localStorage.getItem('userAuth'));
-        setIsAdmin(userAuth.isadmin);
-    }, []);
+    // useEffect(() => {
+    //     const userAuth = JSON.parse(localStorage.getItem('userAuth'));
+    //     setIsAdmin(userAuth.isadmin);
+    // }, []);
 
     const [selectedPlaceDescription, setSelectedPlaceDescription] = React.useState('');
     const [selectedPlaceHardship, setSelectedPlaceHardship] = React.useState('');
@@ -212,6 +214,8 @@ export default function HomePage() {
 
     useEffect(() => {
         loadPlaces();
+        const userAuth = JSON.parse(localStorage.getItem('userAuth'));
+        setIsAdmin(userAuth.isadmin);
     }, []);
 
     const [newPlaceData, setNewPlaceData] = useState({
@@ -280,10 +284,10 @@ export default function HomePage() {
     return (
         <div>
             <Box sx={{ flexGrow: 1 }}>
-                <AppBar position="dynamic" >
+                <AppBar position="fixed" >
                     <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
                         <div><Link to='/users'>
-                            <IconButton sx={{ display: { width: '80px' } }} size="large" edge="end" aria-label="account of current user" aria-haspopup="true" color="inherit">
+                            <IconButton size="large" edge="end" aria-label="account of current user" aria-haspopup="true" color="inherit">
                                 <AccountCircle />
                                 <span>Login</span>
                             </IconButton>
@@ -298,91 +302,92 @@ export default function HomePage() {
                             <StyledInputBase placeholder="Search…" inputProps={{ 'aria-label': 'search', style: { width: '500px' } }} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                         </Search>
                         <Tooltip title="decreasing hardship"><IconButton onClick={handleSortByhardship}><ArrowDownwardIcon /></IconButton></Tooltip>
+
                         <Button onClick={logout} variant="contained">Log out</Button>
 
                     </Toolbar>
                 </AppBar>
             </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '80px', textAlign:'center'}}>
+                <Card sx={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
 
-            <Card sx={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                    {filteredPlaces?.map((t) => (
+                        // { flex:' 1 0 calc(25% - 20px)', margin: '10px'}
+                        <CardActionArea key={t.id} sx={{ display: 'flex', flexDirection: 'column', width: '20%', height: '20%', margin: '10px', padding: '10px'}} >
+                            <CardMedia component="img" height="180" image={t.place_image} alt="img" />
+                            <CardContent>
+                                <Typography variant="h6" color="text.secondary">
+                                    {t.name}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    {t.country}
+                                </Typography>
+                                <Button onClick={() => handleOpen(t.id, t.description, t.hardship)}>Detail</Button>
+                                <Modal
+                                    aria-labelledby="transition-modal-title"
+                                    aria-describedby="transition-modal-description"
+                                    open={open}
+                                    onClose={handleClose}
+                                    closeAfterTransition
+                                    slots={{ backdrop: Backdrop }}
+                                    slotProps={{
+                                        backdrop: { timeout: 500, },
+                                    }}>
+                                    <Fade in={open}>
+                                        <Box sx={style}>
+                                            <Typography id="transition-modal-title" variant="body1" component="p">
+                                                {selectedPlaceId}
+                                                <p>Description: {selectedPlaceDescription}</p>
+                                                <p>Hardship Level: {selectedPlaceHardship} </p>
 
-                {filteredPlaces?.map((t) => (
-                    // { flex:' 1 0 calc(25% - 20px)', margin: '10px'}
-                    <CardActionArea key={t.id} sx={{ display: 'flex', flexDirection: 'column', width: '20%', height: '20%', margin: '10px', padding: '10px' }} >
-                        <CardMedia component="img" height="140" image={t.place_image} alt="img" />
-                        <CardContent>
-                            <Typography variant="h6" color="text.secondary">
-                                {t.name}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                {t.country}
-                            </Typography>
-                            <Button onClick={() => handleOpen(t.id, t.description, t.hardship)}>Detail</Button>
-                            <Modal
-                                aria-labelledby="transition-modal-title"
-                                aria-describedby="transition-modal-description"
-                                open={open}
-                                onClose={handleClose}
-                                closeAfterTransition
-                                slots={{ backdrop: Backdrop }}
-                                slotProps={{
-                                    backdrop: { timeout: 500, },
-                                }}>
-                                <Fade in={open}>
-                                    <Box sx={style}>
-                                        <Typography id="transition-modal-title" variant="body1" component="p">
-                                            {selectedPlaceId}
-                                            <p>Description: {selectedPlaceDescription}</p>
-                                            <p>Hardship Level: {selectedPlaceHardship} </p>
+                                            </Typography>
 
-                                        </Typography>
-
-                                        <Button variant="outlined" onClick={handleClose}><ArrowBackIcon /></Button>
-                                        {isadmin && <Button variant="outlined" onClick={handleOpenDialog}>Edit</Button>}
-                                        {isadmin && <Button variant="outlined" onClick={handleDelete}><CloseIcon /></Button>}
-                                        <Dialog
-                                            open={openDialog}
-                                            onClose={handleCloseDialog}
-                                            PaperProps={{
-                                                component: 'form',
-                                                onSubmit: (event) => {
-                                                    event.preventDefault();
-                                                    const formData = new FormData(event.currentTarget);
-                                                    const formJson = Object.fromEntries(formData.entries());
-                                                    const email = formJson.email;
-                                                    console.log(email);
-                                                    handleCloseDialog();
-                                                },
-                                            }}>
-                                            <DialogTitle>Edit Data</DialogTitle>
-                                            <DialogContent>
-                                                {/* <InputLabel size="normal" focused>Description:</InputLabel>
+                                            <Tooltip title="Back"><Button variant="outlined" onClick={handleClose}><ArrowBackIcon /></Button></Tooltip>
+                                            {isadmin && <Tooltip title="Edit"><Button variant="outlined" onClick={handleOpenDialog}><EditIcon></EditIcon></Button></Tooltip>}
+                                            {isadmin && <Tooltip title="Delete"><Button variant="outlined" onClick={handleDelete}><DeleteIcon /></Button></Tooltip>}
+                                            <Dialog
+                                                open={openDialog}
+                                                onClose={handleCloseDialog}
+                                                PaperProps={{
+                                                    component: 'form',
+                                                    onSubmit: (event) => {
+                                                        event.preventDefault();
+                                                        const formData = new FormData(event.currentTarget);
+                                                        const formJson = Object.fromEntries(formData.entries());
+                                                        const email = formJson.email;
+                                                        console.log(email);
+                                                        handleCloseDialog();
+                                                    },
+                                                }}>
+                                                <DialogTitle>Edit Data</DialogTitle>
+                                                <DialogContent>
+                                                    {/* <InputLabel size="normal" focused>Description:</InputLabel>
                                                 <TextField
 
                                                 /> */}
 
-                                                <InputLabel size="normal" focused>Hardship:</InputLabel>
-                                                <TextField
-                                                    value={hardship}
-                                                    onChange={handleHardshipChange}
-                                                />
-                                            </DialogContent>
-                                            <DialogActions>
-                                                <Button onClick={handleCloseDialog}>Cancel</Button>
-                                                <Button onClick={handleEdit}>UPDATE</Button>
+                                                    <InputLabel size="normal" focused>Hardship:</InputLabel>
+                                                    <TextField
+                                                        value={hardship}
+                                                        onChange={handleHardshipChange}
+                                                    />
+                                                </DialogContent>
+                                                <DialogActions>
+                                                    <Button onClick={handleCloseDialog}>Cancel</Button>
+                                                    <Button onClick={handleEdit}>UPDATE</Button>
 
-                                            </DialogActions>
-                                        </Dialog>
+                                                </DialogActions>
+                                            </Dialog>
 
-                                    </Box>
-                                </Fade>
+                                        </Box>
+                                    </Fade>
 
-                            </Modal>
-                        </CardContent>
-                    </CardActionArea>
-                ))}
-            </Card>
-
+                                </Modal>
+                            </CardContent>
+                        </CardActionArea>
+                    ))}
+                </Card>
+            </Box>
             {isadmin && (<Tooltip title="Add Place"><Button onClick={handleOpenaddDialog}><AddIcon /></Button>  </Tooltip>)}
             <Dialog
                 open={openAddDialog}

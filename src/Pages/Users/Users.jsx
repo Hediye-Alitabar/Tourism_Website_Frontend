@@ -14,6 +14,8 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
+import SvgIcon from '@mui/material/SvgIcon';
+import Tooltip from '@mui/material/Tooltip';
 
 export default function InputAdornments() {
 
@@ -22,6 +24,13 @@ export default function InputAdornments() {
     href="https://fonts.googleapis.com/icon?family=Material+Icons"
   />
 
+  function HomeIcon(props) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+    </SvgIcon>
+  );
+}
 
   const [showPassword, setShowPassword] = React.useState(false);
   const [username, setUsername] = useState("");
@@ -55,16 +64,21 @@ export default function InputAdornments() {
     event.preventDefault();
   };
 
+
+
   return (
-    <div className='login'>
-      <h2>LOGIN</h2>
-      <Box sx={{ display: 'flex', flexDirection: 'column', textAlign: 'center', width: '30ch' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center',  minHeight: '100vh', padding: '0 20px' }}>
+      <div style={{maxWidth: '400px', width: '100%'}}>
+      <h2 style={{ textAlign: 'center' }} >LOGIN</h2>
+      <Box sx={{ display: 'flex', flexDirection: 'column', textAlign: 'center'}}>
         <div>
           <TextField
             helperText=" "
             id="demo-helper-text-aligned-no-helper"
             label="Name"
             onChange={(e) => setUsername(e.target.value)}
+            
+            style={{ marginBottom: '10px', width: '65%'}}
           />
           <br />
           <FormControl sx={{ m: 1 }} variant="outlined" >
@@ -86,6 +100,7 @@ export default function InputAdornments() {
                 </InputAdornment>
               }
               label="Password"
+              // style={{ width: '100%' }}
             />
 
           </FormControl>
@@ -94,8 +109,9 @@ export default function InputAdornments() {
             LOGIN
           </Button>
         </div>
-        <Link to='/'>Back</Link>
+       <Tooltip title="Back to Home Page"><Link to='/' style={{ textAlign: 'center', display: 'block', marginTop: '20px' }}> <HomeIcon color="primary" /></Link></Tooltip> 
       </Box>
+      </div>
     </div>
   );
 }
