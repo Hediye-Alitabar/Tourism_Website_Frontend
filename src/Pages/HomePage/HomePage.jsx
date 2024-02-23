@@ -169,17 +169,10 @@ export default function HomePage() {
     const [filteredPlaces, setFilteredPlaces] = useState([]);
     const [isadmin, setIsAdmin] = useState(false);
 
-
-    // useEffect(() => {
-    //     const userAuth = JSON.parse(localStorage.getItem('userAuth'));
-    //     setIsAdmin(userAuth.isadmin);
-    // }, []);
-
     const [selectedPlaceDescription, setSelectedPlaceDescription] = React.useState('');
     const [selectedPlaceHardship, setSelectedPlaceHardship] = React.useState('');
     const handleOpen = (placeId, description, hardship) => {
         setSelectedPlaceId(placeId);
-        console.log(placeId);
         setSelectedPlaceDescription(description);
         setSelectedPlaceHardship(hardship);
         setOpen(true);
@@ -215,7 +208,7 @@ export default function HomePage() {
     useEffect(() => {
         loadPlaces();
         const userAuth = JSON.parse(localStorage.getItem('userAuth'));
-        setIsAdmin(userAuth.isadmin);
+        setIsAdmin(userAuth?.isadmin || false); 
     }, []);
 
     const [newPlaceData, setNewPlaceData] = useState({
@@ -312,7 +305,6 @@ export default function HomePage() {
                 <Card sx={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
 
                     {filteredPlaces?.map((t) => (
-                        // { flex:' 1 0 calc(25% - 20px)', margin: '10px'}
                         <CardActionArea key={t.id} sx={{ display: 'flex', flexDirection: 'column', width: '20%', height: '20%', margin: '10px', padding: '10px'}} >
                             <CardMedia component="img" height="180" image={t.place_image} alt="img" />
                             <CardContent>
@@ -322,7 +314,9 @@ export default function HomePage() {
                                 <Typography variant="body2" color="text.secondary">
                                     {t.country}
                                 </Typography>
-                                <Button onClick={() => handleOpen(t.id, t.description, t.hardship)}>Detail</Button>
+                                {/* <Button onClick={() => handleOpen(t.id, t.description, t.hardship)}>Detail</Button> */}
+                                <div onClick={() => handleOpen(t.id, t.description, t.hardship)}>Detail</div>
+
                                 <Modal
                                     aria-labelledby="transition-modal-title"
                                     aria-describedby="transition-modal-description"
@@ -337,8 +331,9 @@ export default function HomePage() {
                                         <Box sx={style}>
                                             <Typography id="transition-modal-title" variant="body1" component="p">
                                                 {selectedPlaceId}
-                                                <p>Description: {selectedPlaceDescription}</p>
-                                                <p>Hardship Level: {selectedPlaceHardship} </p>
+                                                Description: {selectedPlaceDescription}
+                                                <br />
+                                                Hardship Level: {selectedPlaceHardship} 
 
                                             </Typography>
 
