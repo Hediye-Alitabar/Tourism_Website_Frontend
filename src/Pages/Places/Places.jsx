@@ -23,14 +23,26 @@ import { Place } from '@mui/icons-material';
 import Rating from '@mui/material/Rating';
 import Box from '@mui/material/Box';
 import StarIcon from '@mui/icons-material/Star';
+import CommentIcon from '@mui/icons-material/Comment';
+
 
 
 export default function PlaceDetailPage() {
+  
+  const MAX_LENGTH = 350;
+
   const { id } = useParams();
   const [place, setPlace] = useState('');
   const [isadmin, setIsAdmin] = useState(false);
-
+  const [comments, setComments] = useState([]);
   const [value, setValue] = React.useState(2);
+  const [openDialog, setOpenDialog] = React.useState(false);
+  const [hardship, setHardship] = React.useState('');
+  const [openCRDialog, setOpenCRDialog] = React.useState(false);
+  const [hover, setHover] = React.useState(-1);
+  const [commentText, setCommentText] = React.useState('');
+  const [averageRating, setAverageRating] = useState(0);
+
 
   const fetchPlace = async () => {
     try {
@@ -42,8 +54,20 @@ export default function PlaceDetailPage() {
     }
   };
 
+
+  const fetchComments = async () => {
+    try {
+      const res = await GET(`/reviews/${id}`);
+      setComments(res);
+      console.log(res);
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    }
+  };
+
   useEffect(() => {
     fetchPlace();
+    fetchComments();
     const userAuth = JSON.parse(localStorage.getItem('userAuth'));
     setIsAdmin(userAuth?.isadmin || false);
   }, [id]);
@@ -60,17 +84,21 @@ export default function PlaceDetailPage() {
     return `${value} Star${value !== 1 ? 's' : ''}, ${labels[value]}`;
   }
 
-  const [hover, setHover] = React.useState(-1);
-
   const handleOpenDialog = () => {
     setOpenDialog(true);
   };
 
-  const [openDialog, setOpenDialog] = React.useState(false);
-  const [hardship, setHardship] = React.useState('');
+  const handleOpenCRDialog = () => {
+    setOpenCRDialog(true);
+  };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
+  };
+
+
+  const handleCloseCRDialog = () => {
+    setOpenCRDialog(false);
   };
 
 
@@ -81,8 +109,8 @@ export default function PlaceDetailPage() {
   const handleEdit = async () => {
     try {
       if (!id) {
-          console.error("Selected Place ID is undefined");
-          return;
+        console.error("Selected Place ID is undefined");
+        return;
       }
 
       const response = await fetch(`http://localhost:3000/places/${id}`, {
@@ -99,7 +127,6 @@ export default function PlaceDetailPage() {
         const data = await response.json();
         console.log(data.message);
         handleCloseDialog();
-        // handleClose();
         fetchPlace();
       } else {
         throw new Error('Failed to update place');
@@ -115,8 +142,8 @@ export default function PlaceDetailPage() {
   const handleDelete = async () => {
     try {
       if (!id) {
-          console.error("Selected Place ID is undefined");
-          return;
+        console.error("Selected Place ID is undefined");
+        return;
       }
 
       const response = await fetch(`http://localhost:3000/places/${id}`, {
@@ -140,6 +167,7 @@ export default function PlaceDetailPage() {
   if (!place) {
     return <div>Wait a Moment !!!</div>;
   }
+
 
   return (
     <div>
@@ -169,9 +197,9 @@ export default function PlaceDetailPage() {
             right: 0,
             margin: '8px',
             display: 'flex',
-            alignItems: 'center',
           }}>
-            <span>Rate:</span>
+
+            {/* <span>Rate:</span>
             <Rating
               name="hover-feedback"
               value={value}
@@ -187,7 +215,76 @@ export default function PlaceDetailPage() {
             />
             {value !== null && (
               <Box sx={{ ml: 2 }}>{labels[hover !== -1 ? hover : value]}</Box>
-            )}
+            )} */}
+
+            <Tooltip title="Add Comment or Rate"><Button onClick={handleOpenCRDialog}><CommentIcon /></Button></Tooltip>
+            <Dialog
+              open={openCRDialog}
+              onClose={handleCloseCRDialog}
+              PaperProps={{
+                component: 'form',
+                onSubmit: (event) => {
+                  event.preventDefault();
+                  const formData = new FormData(event.currentTarget);
+                  const formJson = Object.fromEntries(formData.entries());
+                  const email = formJson.email;
+                  console.log(email);
+                  handleCloseCRDialog();
+                },
+              }}>
+              <DialogTitle>Commet & Rate</DialogTitle>
+              <DialogContent>
+                <Box
+                  component="form"
+                  sx={{
+                    '& > :not(style)': { m: 1, width: '60ch' },
+                  }}
+                  noValidate
+                  autoComplete="off"
+                >
+                  <TextField id="outlined-basic" label="Comment" variant="outlined" value={commentText}
+                    onChange={(event) => setCommentText(event.target.value)}
+                    inputProps={{ maxLength: MAX_LENGTH }}
+                    multiline
+                    rows={4} />
+                  <Typography variant="body2" color="textSecondary">{MAX_LENGTH - commentText.length}
+                    Characters Remaining
+                  </Typography>
+
+
+                </Box>
+
+                <Box sx={{
+                  position: 'absolute',
+                  // bottom: 0,
+                  // right: 0,
+                  margin: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}>
+                  <span>Rate:</span>
+                  <Rating
+                    name="hover-feedback"
+                    value={value}
+                    getLabelText={getLabelText}
+                    onChange={(event, newValue) => {
+                      setValue(newValue);
+                    }}
+                    onChangeActive={(event, newHover) => {
+                      setHover(newHover);
+                    }}
+                    emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
+                  />
+                  {/* {value !== null && (
+              <Box sx={{ ml: 2, backgroundColor:"pink" }}>{labels[hover !== -1 ? hover : value]}</Box>
+            )} */}
+                </Box>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseCRDialog}>Cancel</Button>
+                <Button onClick={handleCloseCRDialog}>Submit</Button>
+              </DialogActions>
+            </Dialog>
           </Box>
 
           <Dialog
@@ -220,7 +317,17 @@ export default function PlaceDetailPage() {
           </Dialog>
         </CardContent>
       </Card>
-
+      {comments.length > 0 && (<Typography variant="h6" component="h4">Comments:</Typography>)}
+      <ul>
+        {comments.map((comment, index) => (
+          <li key={index}>
+            <Typography>User ID: {comment.user_id}</Typography>
+            <Typography>Comment: {comment.review_comment}</Typography>
+            {/* <Typography>Rating: {comment.rating}</Typography> */}
+            <Rating name={`rating-${index}`} value={parseInt(comment.rating)} readOnly />
+          </li>
+        ))}
+      </ul>
     </div>
 
   );
