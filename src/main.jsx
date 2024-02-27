@@ -6,6 +6,7 @@ import './index.css'
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import HomePage from './Pages/HomePage/HomePage.jsx';
 import Users from './Pages/Users/Users.jsx';
+import Places from './Pages/Places/Places.jsx'
 const router = createBrowserRouter([
   {
     path: "/",
@@ -15,6 +16,10 @@ const router = createBrowserRouter([
   {
     path: "/users",
     element: <Users />
+  },
+  {
+    path: "/places/:id",
+    element: <Places />
   }
 ]);
 

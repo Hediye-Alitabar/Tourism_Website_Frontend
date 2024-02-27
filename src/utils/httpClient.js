@@ -1,6 +1,7 @@
 const BASE_URL = 'http://localhost:3000'
 
-// export async function get(path) {
+// export async function GET(path) {
+//   // try{
 //     var myHeaders = new Headers();
 //     myHeaders.append("Content-Type", "application/json");
 
@@ -9,12 +10,16 @@ const BASE_URL = 'http://localhost:3000'
 //       headers: myHeaders,
 //       redirect: 'follow'
 //     };
+//     return fetch(`${BASE_URL}${path}`, requestOptions)
 
-//     const data = await fetch(`${BASE_URL}${path}`, requestOptions)
+  // }
+// catch{
+  
+// }
 //       .then(response => response.json())
 //       .catch(error => console.log('error', error));
 
-//   return data
+  // return data
 // } 
 
 export async function GET(path) {

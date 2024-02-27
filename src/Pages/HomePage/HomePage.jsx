@@ -50,6 +50,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useNavigate } from 'react-router-dom';
+
 
 const Search = styled('div')(({ theme }) => ({
     position: 'relative',
@@ -143,44 +145,46 @@ export default function HomePage() {
         setHardship(event.target.value);
     };
 
-    const handleEdit = async () => {
-        try {
-            if (!selectedPlaceId) {
-                console.error("Selected Place ID is undefined");
-                return;
-            }
+    // const handleEdit = async () => {
+    //     try {
+    //         if (!selectedPlaceId) {
+    //             console.error("Selected Place ID is undefined");
+    //             return;
+    //         }
 
-            const response = await fetch(`http://localhost:3000/places/${selectedPlaceId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    hardship: hardship
-                })
-            });
+    //         const response = await fetch(`http://localhost:3000/places/${selectedPlaceId}`, {
+    //             method: 'PUT',
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             },
+    //             body: JSON.stringify({
+    //                 hardship: hardship
+    //             })
+    //         });
 
-            if (response.ok) {
-                const data = await response.json();
-                console.log(data.message);
-                handleCloseDialog();
-                handleClose();
-                loadPlaces();
-            } else {
-                throw new Error('Failed to update place');
-            }
-        } catch (error) {
-            console.error("Error editing place:", error);
-        }
-    };
+    //         if (response.ok) {
+    //             const data = await response.json();
+    //             console.log(data.message);
+    //             handleCloseDialog();
+    //             handleClose();
+    //             loadPlaces();
+    //         } else {
+    //             throw new Error('Failed to update place');
+    //         }
+    //     } catch (error) {
+    //         console.error("Error editing place:", error);
+    //     }
+    // };
 
-    const handleOpen = (placeId, description, hardship) => {
-        setSelectedPlaceId(placeId);
-        setSelectedPlaceDescription(description);
-        setSelectedPlaceHardship(hardship);
-        setOpen(true);
-    };
+    
+  const navigate = useNavigate();
 
+  const handleOpen = (id) => {
+    // setSelectedPlaceId(placeId);
+    // setSelectedPlaceDescription(description);
+    // setSelectedPlaceHardship(hardship);
+    navigate(`/places/${id}`); 
+};
 
     const loadPlaces = async () => {
         // const data = await fetch("http://localhost:3000/places").then((response) =>
@@ -243,32 +247,32 @@ export default function HomePage() {
         setNewPlaceData({ ...newPlaceData, [name]: value });
     };
 
-    const handleDelete = async () => {
-        try {
-            if (!selectedPlaceId) {
-                console.error("Selected Place ID is undefined");
-                return;
-            }
+    // const handleDelete = async () => {
+    //     try {
+    //         if (!selectedPlaceId) {
+    //             console.error("Selected Place ID is undefined");
+    //             return;
+    //         }
 
-            const response = await fetch(`http://localhost:3000/places/${selectedPlaceId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
+    //         const response = await fetch(`http://localhost:3000/places/${selectedPlaceId}`, {
+    //             method: 'DELETE',
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             }
+    //         });
 
-            if (response.ok) {
-                const data = await response.json();
-                console.log(data.message);
-                handleClose();
-                loadPlaces();
-            } else {
-                throw new Error('Failed to delete place');
-            }
-        } catch (error) {
-            console.error("Error deleting place:", error);
-        }
-    };
+    //         if (response.ok) {
+    //             const data = await response.json();
+    //             console.log(data.message);
+    //             handleClose();
+    //             loadPlaces();
+    //         } else {
+    //             throw new Error('Failed to delete place');
+    //         }
+    //     } catch (error) {
+    //         console.error("Error deleting place:", error);
+    //     }
+    // };
 
     const handleSortByhardship = () => {
         let sortedPlaces = [...places];
@@ -308,6 +312,7 @@ export default function HomePage() {
 
                     {filteredPlaces?.map((t) => (
                         <CardActionArea key={t.id} sx={{ display: 'flex', flexDirection: 'column', width: '20%', height: '20%', margin: '10px', padding: '10px'}} >
+                           {/* {`/places/${t.id}`} style={{ textDecoration: 'none', color: 'inherit' }} */}
                             <CardMedia component="img" height="180" image={t.place_image} alt="img" />
                             <CardContent>
                                 <Typography variant="h6" color="text.secondary">
@@ -316,70 +321,11 @@ export default function HomePage() {
                                 <Typography variant="body2" color="text.secondary">
                                     {t.country}
                                 </Typography>
-                                <div style={{color:'blue'}} onClick={() => handleOpen(t.id, t.description, t.hardship)}>More Detail</div>
+                                <div style={{color:'blue'}} onClick={() => handleOpen(t.id)}>More Detail</div>
 
-                                <Modal
-                                    aria-labelledby="transition-modal-title"
-                                    aria-describedby="transition-modal-description"
-                                    open={open}
-                                    onClose={handleClose}
-                                    closeAfterTransition
-                                    slots={{ backdrop: Backdrop }}
-                                    slotProps={{
-                                        backdrop: { timeout: 500, },
-                                    }}>
-                                    <Fade in={open}>
-                                        <Box sx={style}>
-                                            <Typography id="transition-modal-title" variant="body1" component="p">
-                                                {selectedPlaceId}
-                                                Description: {selectedPlaceDescription}
-                                                <br />
-                                                Hardship Level: {selectedPlaceHardship} 
-
-                                            </Typography>
-
-                                            <Tooltip title="Back"><Button variant="outlined" onClick={handleClose}><ArrowBackIcon /></Button></Tooltip>
-                                            {isadmin && <Tooltip title="Edit"><Button variant="outlined" onClick={handleOpenDialog}><EditIcon></EditIcon></Button></Tooltip>}
-                                            {isadmin && <Tooltip title="Delete"><Button variant="outlined" onClick={handleDelete}><DeleteIcon /></Button></Tooltip>}
-                                            <Dialog
-                                                open={openDialog}
-                                                onClose={handleCloseDialog}
-                                                PaperProps={{
-                                                    component: 'form',
-                                                    onSubmit: (event) => {
-                                                        event.preventDefault();
-                                                        const formData = new FormData(event.currentTarget);
-                                                        const formJson = Object.fromEntries(formData.entries());
-                                                        const email = formJson.email;
-                                                        console.log(email);
-                                                        handleCloseDialog();
-                                                    },
-                                                }}>
-                                                <DialogTitle>Edit Data</DialogTitle>
-                                                <DialogContent>
-                                                    {/* <InputLabel size="normal" focused>Description:</InputLabel>
-                                                <TextField
-
-                                                /> */}
-
-                                                    <InputLabel size="normal" focused>Hardship:</InputLabel>
-                                                    <TextField
-                                                        value={hardship}
-                                                        onChange={handleHardshipChange}
-                                                    />
-                                                </DialogContent>
-                                                <DialogActions>
-                                                    <Button onClick={handleCloseDialog}>Cancel</Button>
-                                                    <Button onClick={handleEdit}>UPDATE</Button>
-
-                                                </DialogActions>
-                                            </Dialog>
-
-                                        </Box>
-                                    </Fade>
-
-                                </Modal>
+                                
                             </CardContent>
+                           
                         </CardActionArea>
                     ))}
                 </Card>
@@ -429,5 +375,70 @@ export default function HomePage() {
             </Dialog>
 
         </div>
+
+
+        
     );
 }
+
+// <Modal
+// aria-labelledby="transition-modal-title"
+// aria-describedby="transition-modal-description"
+// open={open}
+// onClose={handleClose}
+// closeAfterTransition
+// slots={{ backdrop: Backdrop }}
+// slotProps={{
+//     backdrop: { timeout: 500, },
+// }}>
+{/* <Fade in={open}>
+    <Box sx={style}>
+        <Typography id="transition-modal-title" variant="body1" component="p">
+            {selectedPlaceId}
+            Description: {selectedPlaceDescription}
+            <br />
+            Hardship Level: {selectedPlaceHardship} 
+
+        </Typography> */}
+
+        {/* <Tooltip title="Back"><Button variant="outlined" onClick={handleClose}><ArrowBackIcon /></Button></Tooltip>
+        {isadmin && <Tooltip title="Edit"><Button variant="outlined" onClick={handleOpenDialog}><EditIcon></EditIcon></Button></Tooltip>}
+        {isadmin && <Tooltip title="Delete"><Button variant="outlined" onClick={handleDelete}><DeleteIcon /></Button></Tooltip>}
+        <Dialog
+            open={openDialog}
+            onClose={handleCloseDialog}
+            PaperProps={{
+                component: 'form',
+                onSubmit: (event) => {
+                    event.preventDefault();
+                    const formData = new FormData(event.currentTarget);
+                    const formJson = Object.fromEntries(formData.entries());
+                    const email = formJson.email;
+                    console.log(email);
+                    handleCloseDialog();
+                },
+            }}>
+            <DialogTitle>Edit Data</DialogTitle>
+            <DialogContent> */}
+                {/* <InputLabel size="normal" focused>Description:</InputLabel>
+            <TextField
+
+            /> */}
+{/* 
+                <InputLabel size="normal" focused>Hardship:</InputLabel>
+                <TextField
+                    value={hardship}
+                    onChange={handleHardshipChange}
+                />
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={handleCloseDialog}>Cancel</Button>
+                <Button onClick={handleEdit}>UPDATE</Button>
+
+            </DialogActions>
+        </Dialog>
+
+    </Box>
+</Fade>
+
+</Modal> */}
