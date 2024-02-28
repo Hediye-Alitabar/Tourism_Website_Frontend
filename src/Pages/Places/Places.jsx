@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { GET } from '../../utils/httpClient';
+import { post } from '../../utils/httpClient'
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
@@ -42,6 +43,7 @@ export default function PlaceDetailPage() {
   const [hover, setHover] = React.useState(-1);
   const [commentText, setCommentText] = React.useState('');
   const [averageRating, setAverageRating] = useState(0);
+  const [userAuth, setUserAuth] = useState(null);
 
 
   const fetchPlace = async () => {
@@ -65,9 +67,15 @@ export default function PlaceDetailPage() {
     }
   };
 
+  const fetchUserAuth = () => {
+    const userAuthData = localStorage.getItem('userAuth');
+    setUserAuth(userAuthData ? JSON.parse(userAuthData) : null);
+  };
+
   useEffect(() => {
     fetchPlace();
     fetchComments();
+    fetchUserAuth();
     const userAuth = JSON.parse(localStorage.getItem('userAuth'));
     setIsAdmin(userAuth?.isadmin || false);
   }, [id]);
@@ -104,6 +112,30 @@ export default function PlaceDetailPage() {
 
   const handleHardshipChange = (event) => {
     setHardship(event.target.value);
+  };
+
+  const handleCommentSubmit = async () => {
+    try {
+      if (!userAuth || !userAuth.id) {
+        console.error('User is not logged in');
+        return;
+      }
+      const response = await post('/reviews', {
+        user_id: userAuth.id,
+        place_id: id,
+        rating: value,
+        review_comment: commentText
+      });
+      if (response.error) {
+        console.error('Error adding comment:', response.error);
+      } else {
+        console.log('Comment added successfully');
+        fetchComments();
+      }
+      handleCloseCRDialog();
+    } catch (error) {
+      console.error('Error adding comment:', error);
+    }
   };
 
   const handleEdit = async () => {
@@ -199,24 +231,6 @@ export default function PlaceDetailPage() {
             display: 'flex',
           }}>
 
-            {/* <span>Rate:</span>
-            <Rating
-              name="hover-feedback"
-              value={value}
-              // precision={0.5}
-              getLabelText={getLabelText}
-              onChange={(event, newValue) => {
-                setValue(newValue);
-              }}
-              onChangeActive={(event, newHover) => {
-                setHover(newHover);
-              }}
-              emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
-            />
-            {value !== null && (
-              <Box sx={{ ml: 2 }}>{labels[hover !== -1 ? hover : value]}</Box>
-            )} */}
-
             <Tooltip title="Add Comment or Rate"><Button onClick={handleOpenCRDialog}><CommentIcon /></Button></Tooltip>
             <Dialog
               open={openCRDialog}
@@ -251,7 +265,6 @@ export default function PlaceDetailPage() {
                     Characters Remaining
                   </Typography>
 
-
                 </Box>
 
                 <Box sx={{
@@ -282,7 +295,7 @@ export default function PlaceDetailPage() {
               </DialogContent>
               <DialogActions>
                 <Button onClick={handleCloseCRDialog}>Cancel</Button>
-                <Button onClick={handleCloseCRDialog}>Submit</Button>
+                <Button onClick={handleCommentSubmit}>Submit</Button>
               </DialogActions>
             </Dialog>
           </Box>
@@ -323,7 +336,6 @@ export default function PlaceDetailPage() {
           <li key={index}>
             <Typography>User ID: {comment.user_id}</Typography>
             <Typography>Comment: {comment.review_comment}</Typography>
-            {/* <Typography>Rating: {comment.rating}</Typography> */}
             <Rating name={`rating-${index}`} value={parseInt(comment.rating)} readOnly />
           </li>
         ))}
