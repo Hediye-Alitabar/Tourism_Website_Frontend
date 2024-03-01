@@ -115,19 +115,12 @@ export default function HomePage() {
     const [filteredPlaces, setFilteredPlaces] = useState([]);
     const [isadmin, setIsAdmin] = useState(false);
 
-    const [selectedPlaceDescription, setSelectedPlaceDescription] = React.useState('');
-    const [selectedPlaceHardship, setSelectedPlaceHardship] = React.useState('');
-    const [selectedPlaceId, setSelectedPlaceId] = React.useState([]);
+    // const [selectedPlaceDescription, setSelectedPlaceDescription] = React.useState('');
+    // const [selectedPlaceHardship, setSelectedPlaceHardship] = React.useState('');
+    // const [selectedPlaceId, setSelectedPlaceId] = React.useState([]);
 
 
     const [places, setPlaces] = useState([]);
-
-    const [hardship, setHardship] = React.useState('');
-
-
-    const handleOpenDialog = () => {
-        setOpenDialog(true);
-    };
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
@@ -141,9 +134,6 @@ export default function HomePage() {
         setOpenAddDialog(false);
     };
 
-    const handleHardshipChange = (event) => {
-        setHardship(event.target.value);
-    };
 
     // const handleEdit = async () => {
     //     try {
@@ -180,9 +170,6 @@ export default function HomePage() {
   const navigate = useNavigate();
 
   const handleOpen = (id) => {
-    // setSelectedPlaceId(placeId);
-    // setSelectedPlaceDescription(description);
-    // setSelectedPlaceHardship(hardship);
     navigate(`/places/${id}`); 
 };
 
@@ -195,9 +182,10 @@ export default function HomePage() {
         setFilteredPlaces(data);
     };
 
+    const userAuth = JSON.parse(localStorage.getItem('userAuth'));
     useEffect(() => {
         loadPlaces();
-        const userAuth = JSON.parse(localStorage.getItem('userAuth'));
+        // const userAuth = JSON.parse(localStorage.getItem('userAuth'));
         setIsAdmin(userAuth?.isadmin || false); 
     }, []);
 
@@ -302,7 +290,7 @@ export default function HomePage() {
                         </Search>
                         <Tooltip title="decreasing hardship"><IconButton onClick={handleSortByhardship}><ArrowDownwardIcon /></IconButton></Tooltip>
 
-                        <Button onClick={logout} variant="contained">Log out</Button>
+                       {userAuth && <Button onClick={logout} variant="contained">Log out</Button>} 
 
                     </Toolbar>
                 </AppBar>

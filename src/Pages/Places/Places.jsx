@@ -231,7 +231,7 @@ export default function PlaceDetailPage() {
             display: 'flex',
           }}>
 
-            <Tooltip title="Add Comment or Rate"><Button onClick={handleOpenCRDialog}><CommentIcon /></Button></Tooltip>
+           {userAuth && <Tooltip title="Add Comment or Rate"><Button onClick={handleOpenCRDialog}><CommentIcon /></Button></Tooltip>} 
             <Dialog
               open={openCRDialog}
               onClose={handleCloseCRDialog}
@@ -337,6 +337,7 @@ export default function PlaceDetailPage() {
             <Typography>User ID: {comment.user_id}</Typography>
             <Typography>Comment: {comment.review_comment}</Typography>
             <Rating name={`rating-${index}`} value={parseInt(comment.rating)} readOnly />
+            <br /><br />
           </li>
         ))}
       </ul>
