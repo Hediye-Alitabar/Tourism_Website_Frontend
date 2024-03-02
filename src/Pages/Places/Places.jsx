@@ -19,13 +19,10 @@ import DialogContent from '@mui/material/DialogContent';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
-import CardMedia from '@mui/material/CardMedia';
-import { Place } from '@mui/icons-material';
 import Rating from '@mui/material/Rating';
 import Box from '@mui/material/Box';
 import StarIcon from '@mui/icons-material/Star';
 import CommentIcon from '@mui/icons-material/Comment';
-
 
 
 export default function PlaceDetailPage() {
@@ -42,26 +39,29 @@ export default function PlaceDetailPage() {
   const [openCRDialog, setOpenCRDialog] = React.useState(false);
   const [hover, setHover] = React.useState(-1);
   const [commentText, setCommentText] = React.useState('');
-  const [averageRating, setAverageRating] = useState(0);
   const [userAuth, setUserAuth] = useState(null);
 
+  const labels = {
+    1: 'Not Pleasant',
+    2: 'Poor',
+    3: 'Ok',
+    4: 'Good',
+    5: 'Excellent',
+  };
 
   const fetchPlace = async () => {
     try {
       const res = await GET(`/places/${id}`);
       setPlace(res);
-      console.log(res);
     } catch (error) {
       console.error('Error fetching place:', error);
     }
   };
 
-
   const fetchComments = async () => {
     try {
       const res = await GET(`/reviews/${id}`);
       setComments(res);
-      console.log(res);
     } catch (error) {
       console.error('Error fetching comments:', error);
     }
@@ -79,14 +79,6 @@ export default function PlaceDetailPage() {
     const userAuth = JSON.parse(localStorage.getItem('userAuth'));
     setIsAdmin(userAuth?.isadmin || false);
   }, [id]);
-
-  const labels = {
-    1: 'Not Pleasant',
-    2: 'Poor',
-    3: 'Ok',
-    4: 'Good',
-    5: 'Excellent',
-  };
 
   function getLabelText(value) {
     return `${value} Star${value !== 1 ? 's' : ''}, ${labels[value]}`;
@@ -157,7 +149,6 @@ export default function PlaceDetailPage() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log(data.message);
         handleCloseDialog();
         fetchPlace();
       } else {
@@ -203,10 +194,8 @@ export default function PlaceDetailPage() {
 
   return (
     <div>
-
       <Card>
         <CardContent sx={{ backgroundColor: 'azure', position: 'relative' }}>
-          <CardMedia component="img" height="180" image={Place[0]?.place_image} alt="img" />
           <Typography variant="h5" component="h2">
             {place[0]?.name}
           </Typography>
@@ -239,10 +228,6 @@ export default function PlaceDetailPage() {
                 component: 'form',
                 onSubmit: (event) => {
                   event.preventDefault();
-                  const formData = new FormData(event.currentTarget);
-                  const formJson = Object.fromEntries(formData.entries());
-                  const email = formJson.email;
-                  console.log(email);
                   handleCloseCRDialog();
                 },
               }}>
@@ -269,8 +254,6 @@ export default function PlaceDetailPage() {
 
                 <Box sx={{
                   position: 'absolute',
-                  // bottom: 0,
-                  // right: 0,
                   margin: '8px',
                   display: 'flex',
                   alignItems: 'center',
@@ -288,9 +271,6 @@ export default function PlaceDetailPage() {
                     }}
                     emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
                   />
-                  {/* {value !== null && (
-              <Box sx={{ ml: 2, backgroundColor:"pink" }}>{labels[hover !== -1 ? hover : value]}</Box>
-            )} */}
                 </Box>
               </DialogContent>
               <DialogActions>
@@ -307,10 +287,6 @@ export default function PlaceDetailPage() {
               component: 'form',
               onSubmit: (event) => {
                 event.preventDefault();
-                const formData = new FormData(event.currentTarget);
-                const formJson = Object.fromEntries(formData.entries());
-                const email = formJson.email;
-                console.log(email);
                 handleCloseDialog();
               },
             }}>

@@ -1,26 +1,5 @@
-const BASE_URL = 'http://localhost:3000'
-
-// export async function GET(path) {
-//   // try{
-//     var myHeaders = new Headers();
-//     myHeaders.append("Content-Type", "application/json");
-
-//     var requestOptions = {
-//       method: 'GET',
-//       headers: myHeaders,
-//       redirect: 'follow'
-//     };
-//     return fetch(`${BASE_URL}${path}`, requestOptions)
-
-  // }
-// catch{
-  
-// }
-//       .then(response => response.json())
-//       .catch(error => console.log('error', error));
-
-  // return data
-// } 
+// const BASE_URL = 'http://localhost:3000'
+const BASE_URL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 export async function GET(path) {
   var myHeaders = new Headers();
@@ -68,7 +47,6 @@ export async function post(path, body) {
     method: 'POST',
     headers: myHeaders,
     body: raw,
-    // body: {...raw, userId: finduser[0].userId}
     redirect: 'follow'
   };
 

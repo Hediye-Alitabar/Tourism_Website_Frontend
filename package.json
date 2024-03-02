@@ -17,6 +17,7 @@
     "@mui/material": "^5.15.10",
     "@mui/styled-engine-sc": "^6.0.0-alpha.16",
     "axios": "^1.6.7",
+    "dotenv": "^16.4.5",
     "js-sha256": "^0.11.0",
     "match-sorter": "^6.3.4",
     "react": "^17.0.0 || ^18.0.0",

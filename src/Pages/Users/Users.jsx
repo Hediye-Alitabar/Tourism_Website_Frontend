@@ -1,5 +1,4 @@
 import * as React from "react";
-import "./Login.css";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { post } from "../../utils/httpClient";
@@ -19,10 +18,7 @@ import Tooltip from "@mui/material/Tooltip";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import Alert from '@mui/material/Alert';
-import AlertTitle from '@mui/material/AlertTitle';
 
 export default function InputAdornments() {
   <link
@@ -58,8 +54,12 @@ export default function InputAdornments() {
   };
 
   const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setNewUserData({ ...newUserData, [name]: value });
+    try {
+      const { name, value } = event.target;
+      setNewUserData({ ...newUserData, [name]: value });
+    } catch (error) {
+      console.error("Error adding new user:", error);
+    }
   };
 
   useEffect(() => {
@@ -70,29 +70,34 @@ export default function InputAdornments() {
   }, []);
 
   const handleSend = async () => {
-    const response = await post("/users", { username, pasword });
-    if (response.error) {
-      console.log("Wrong pass");
-    } else {
-      localStorage.setItem("userAuth", JSON.stringify(response.user));
-      navigate("/");
+    try {
+      const response = await post("/users", { username, pasword });
+      if (response.error) {
+        console.log("Wrong pass");
+      } 
+      else {
+        localStorage.setItem("userAuth", JSON.stringify(response.user));
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Error user login:", error);
     }
   };
 
   const handleSignUp = async () => {
-    const { username, pasword } = newUserData;
-    const response = await post("/users", { username, pasword });
-    console.log(username);
-    console.log(pasword);
-    console.log(response);
-    handleClose();
-    if (response.error) {
-      console.log("Sign Up failed");
+    try {
+      const { username, pasword } = newUserData;
+      const response = await post("/users", { username, pasword });
+      console.log(username);
+      console.log(pasword);
+      console.log(response);
+      handleClose();
+      if (response.error) {
+        console.log("Sign Up failed");
+      }
+    } catch (error) {
+      console.error("Sign up failed:", error);
     }
-    // else {
-    //   localStorage.setItem("userAuth", JSON.stringify(response.user));
-    // navigate("/");
-    // }
   };
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -109,12 +114,27 @@ export default function InputAdornments() {
         alignItems: "center",
         minHeight: "100vh",
         padding: "0 20px",
+        flexDirection: "column",
+        background: `url("https://images.unsplash.com/photo-1609137144813-7d9921338f24?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D") no-repeat center center fixed`,
+        backgroundSize: "cover",
+        backgroundAttachment: "fixed",
       }}
     >
+      <div sx={{ marginBottom: "10px", padding: "100px" }}>
+        <h1 sx={{ textAlign: "center", backgroundColor: "red" }}>
+          Partial Introduction of Specific Tourism Destinations
+        </h1>
+      </div>
       <div style={{ maxWidth: "400px", width: "100%" }}>
         <h2 style={{ textAlign: "center" }}>LOGIN</h2>
         <Box
-          sx={{ display: "flex", flexDirection: "column", textAlign: "center" }}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            textAlign: "center",
+            padding: "10px",
+            margin: "10px",
+          }}
         >
           <div>
             <TextField
@@ -122,9 +142,9 @@ export default function InputAdornments() {
               id="demo-helper-text-aligned-no-helper"
               label="Username"
               onChange={(e) => setUsername(e.target.value)}
-              style={{ marginBottom: "10px", width: "65%" }}
+              style={{ width: "72%" }}
             />
-            <br />
+            {/* <br /> */}
             <FormControl sx={{ m: 1 }} variant="outlined">
               <InputLabel htmlFor="outlined-adornment-password">
                 Password
@@ -148,9 +168,12 @@ export default function InputAdornments() {
                 label="Password"
               />
             </FormControl>
-            <br />
-            <br />
-            <Button variant="contained" disableElevation onClick={handleSend}>
+            <Button
+              variant="contained"
+              sx={{ margin: "10px" }}
+              disableElevation
+              onClick={handleSend}
+            >
               LOGIN
             </Button>
             <div style={{ color: "blue" }} onClick={handleClickOpen}>
@@ -191,7 +214,7 @@ export default function InputAdornments() {
               </DialogContent>
               <DialogActions>
                 <Button onClick={handleClose}>Cancel</Button>
-               <Button type="submit" onClick={handleSignUp}>
+                <Button type="submit" onClick={handleSignUp}>
                   Sign Up
                 </Button>
               </DialogActions>
